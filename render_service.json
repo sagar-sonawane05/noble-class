@@ -1,0 +1,27 @@
+{
+  "name": "noble-classes-backend",
+  "type": "web_service",
+  "runtime": "node",
+  "plan": "free",
+  "buildCommand": "npm run build",
+  "startCommand": "npx prisma migrate deploy && npm run db:seed && npm start",
+  "repo": "https://github.com/CodeWithSagarMali/Noble-Classess",
+  "branch": "main",
+  "rootDir": "backend",
+  "ownerID": "tea-cvkbqq3uibrs739v5vfg",
+  "serviceDetails": {
+    "buildPlan": "starter",
+    "env": "node",
+    "envSpecificDetails": {
+      "buildCommand": "npm run build",
+      "startCommand": "npx prisma migrate deploy && npm run db:seed && npm start"
+    }
+  },
+  "envVars": [
+    { "key": "NODE_ENV", "value": "production" },
+    { "key": "PORT", "value": "5000" },
+    { "key": "CORS_ORIGIN", "value": "https://frontend-5nhvm6n3z-sagar-s-projects-9f1b1ae0.vercel.app" },
+    { "key": "JWT_ACCESS_SECRET", "generateValue": true },
+    { "key": "JWT_REFRESH_SECRET", "generateValue": true }
+  ]
+}
