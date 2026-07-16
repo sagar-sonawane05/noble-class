@@ -11,7 +11,7 @@ services:
       - key: PORT
         value: 5000
       - key: CORS_ORIGIN
-        value: https://frontend-ten-woad-19.vercel.app
+        value: https://frontend-5nhvm6n3z-sagar-s-projects-9f1b1ae0.vercel.app
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
