@@ -29,7 +29,12 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
-# Create static uploads directory
+# Entrypoint: run migrations + seed, then (re)start the server.
+# CORS_ORIGIN is resolved at runtime so it can point at the live frontend URL.
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
+# Create persistent static uploads directory
 RUN mkdir -p uploads
 
 EXPOSE 5000
@@ -37,4 +42,4 @@ EXPOSE 5000
 ENV PORT=5000
 ENV NODE_ENV=production
 
-CMD ["node", "dist/server.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

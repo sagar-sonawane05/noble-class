@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-background text-foreground antialiased selection:bg-teal-500 selection:text-white">
+    <!-- Runtime API URL injected by Railway/nginx (see runtime-env.sh). Must load before the app bundle. -->
+    <script src="/runtime-config.js"></script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

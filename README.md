@@ -101,39 +101,43 @@ noble_classes/
 
 ---
 
-## Deployment (Railway Backend + Vercel Frontend)
+## Deployment (Railway — Backend + Frontend)
 
-The app is split across two hosts: the Express API runs on **Railway** (with a PostgreSQL plugin), and the React SPA runs on **Vercel**.
+Both the Express API and the React SPA are deployed on **Railway** from this single monorepo. The `railway.json` at the repo root declares two services (`backend`, `frontend`), each with its own `rootDirectory` and Dockerfile.
 
-### Backend on Railway
+### 1. Create the project
 
-1. In Railway, create a **New Project → Deploy from GitHub repo** and select this repo.
-2. Add a **PostgreSQL** plugin; Railway auto-injects `DATABASE_URL`.
-3. Set the following service variables:
-   | Variable | Value |
-   | -------- | ----- |
-   | `NODE_ENV` | `production` |
-   | `JWT_ACCESS_SECRET` | a long random string |
-   | `JWT_REFRESH_SECRET` | a long random string |
-   | `CORS_ORIGIN` | `https://<your-vercel-domain>` (comma-separated for multiple) |
-   | `PORT` | `5000` |
-   | `AWS_*` / `RAZORPAY_*` | leave empty for local/mock fallback |
-4. Railway builds with `backend/Dockerfile` and runs `railway.json` (`prisma migrate deploy` + seed + `node dist/server.js`). The `/health` endpoint is the healthcheck.
-5. Note: file uploads use ephemeral local storage on Railway; set `AWS_*` vars for persistent S3 storage.
+1. In Railway, **New Project → Deploy from GitHub repo** and select this repo.
+2. Railway reads `railway.json` and provisions both the `backend` and `frontend` services (root dirs `backend/` and `frontend/`).
+3. Add a **PostgreSQL** plugin to the project and attach it to the `backend` service; Railway auto-injects `DATABASE_URL`.
 
-### Frontend on Vercel
+### 2. Backend service variables
 
-1. In Vercel, **Import** this repo and set the Root Directory to `frontend`.
-2. Build settings (auto-detected from `vercel.json`):
-   - Framework: **Vite**
-   - Install: `npm install --legacy-peer-deps`
-   - Build: `npm run build`
-   - Output: `dist`
-3. Add the build env var:
-   | Variable | Value |
-   | -------- | ----- |
-   | `VITE_API_URL` | `https://<your-railway-domain>/api` |
-4. Deploy. For runtime override without rebuild, the client also reads `window.__API_URL__`.
+Set these on the **backend** service:
+| Variable | Value |
+| -------- | ----- |
+| `NODE_ENV` | `production` |
+| `JWT_ACCESS_SECRET` | a long random string |
+| `JWT_REFRESH_SECRET` | a long random string |
+| `CORS_ORIGIN` | `https://<your-frontend-railway-domain>` (comma-separated for multiple) |
+| `PORT` | `5000` |
+| `AWS_*` / `RAZORPAY_*` | leave empty for local/mock fallback |
+
+The backend Docker image runs `prisma migrate deploy` + seed + `node dist/server.js` via `backend/docker-entrypoint.sh`. The `/health` endpoint is the healthcheck. Note: file uploads use ephemeral local storage on Railway; set `AWS_*` vars for persistent S3 storage.
+
+### 3. Frontend service variables
+
+Set this on the **frontend** service:
+| Variable | Value |
+| -------- | ----- |
+| `RUNTIME_API_URL` | `https://<your-backend-railway-domain>/api` |
+
+The frontend image serves the built SPA with nginx. At container start, `runtime-env.sh` writes `/runtime-config.js` (setting `window.__API_URL__`) from `RUNTIME_API_URL`, so the SPA talks to the live backend without a rebuild. (`VITE_API_URL` remains a build-time alternative.)
+
+### 4. Wire the two together
+
+- Put the backend's Railway domain into the frontend's `RUNTIME_API_URL`.
+- Put the frontend's Railway domain into the backend's `CORS_ORIGIN`.
 
 ---
 
