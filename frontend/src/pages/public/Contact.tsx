@@ -37,7 +37,7 @@ const contactInfo = [
   },
   {
     icon: Phone,
-    title: 'Phone & WhatsApp',
+    title: 'Phone',
     lines: ['+91 98765 43210', '+91 98765 43211 (Admissions)'],
     color: 'text-orange-400',
     bg: 'bg-orange-500/10',

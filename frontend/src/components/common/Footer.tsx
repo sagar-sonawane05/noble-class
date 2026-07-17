@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin,
-  Youtube, MessageCircle, GraduationCap, ArrowRight, ExternalLink,
+  Youtube, GraduationCap, ArrowRight, ExternalLink,
   Shield, FileText, RotateCcw
 } from 'lucide-react';
 
@@ -36,7 +36,6 @@ const socials = [
   { icon: Instagram, href: 'https://instagram.com', label: 'Instagram', color: 'hover:bg-gradient-to-tr from-purple-600 via-pink-600 to-orange-400' },
   { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn', color: 'hover:bg-blue-700' },
   { icon: Youtube, href: 'https://youtube.com', label: 'YouTube', color: 'hover:bg-red-600' },
-  { icon: MessageCircle, href: 'https://wa.me/919876543210', label: 'WhatsApp', color: 'hover:bg-green-600' },
 ];
 
 export const Footer: React.FC = () => {
