@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../common/Navbar';
 import Footer from '../common/Footer';
-import BackToTop from '../common/BackToTop';
 
 export const PublicLayout: React.FC = () => {
   return (
@@ -12,7 +11,6 @@ export const PublicLayout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
-      <BackToTop />
     </div>
   );
 };
