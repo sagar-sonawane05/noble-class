@@ -11,6 +11,9 @@ import AppError from './utils/appError';
 
 const app = express();
 
+// Trust Railway's proxy so express-rate-limit and req.ip work correctly
+app.set('trust proxy', 1);
+
 // Set security HTTP headers (customized to allow image fetching from external domains)
 app.use(
   helmet({
