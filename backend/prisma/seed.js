@@ -4,28 +4,65 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const enums_1 = require("../src/config/enums");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const prisma = new client_1.PrismaClient();
+const Role = {
+    ADMIN: 'ADMIN',
+    TEACHER: 'TEACHER',
+    STUDENT: 'STUDENT',
+};
+const AdmissionStatus = {
+    PENDING: 'PENDING',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED',
+};
+const PaymentStatus = {
+    PENDING: 'PENDING',
+    PAID: 'PAID',
+    PARTIAL: 'PARTIAL',
+    FAILED: 'FAILED',
+};
+const PaymentMode = {
+    ONLINE: 'ONLINE',
+    OFFLINE: 'OFFLINE',
+};
+const FeeType = {
+    ADMISSION: 'ADMISSION',
+    TUITION: 'TUITION',
+    EXAM: 'EXAM',
+    OTHER: 'OTHER',
+};
+const AttendanceStatus = {
+    PRESENT: 'PRESENT',
+    ABSENT: 'ABSENT',
+    LATE: 'LATE',
+};
+const TicketPriority = {
+    LOW: 'LOW',
+    MEDIUM: 'MEDIUM',
+    HIGH: 'HIGH',
+};
+const TicketStatus = {
+    OPEN: 'OPEN',
+    IN_PROGRESS: 'IN_PROGRESS',
+    CLOSED: 'CLOSED',
+};
 async function main() {
     console.log('Seeding Noble Classes Database...');
-    // Hash standard passwords
     const adminPasswordHash = await bcryptjs_1.default.hash('admin123', 10);
     const teacherPasswordHash = await bcryptjs_1.default.hash('teacher123', 10);
     const studentPasswordHash = await bcryptjs_1.default.hash('student123', 10);
-    // 1. Create admin user
     const adminUser = await prisma.user.upsert({
         where: { email: 'admin@nobleclasses.com' },
         update: {},
         create: {
             email: 'admin@nobleclasses.com',
             passwordHash: adminPasswordHash,
-            role: enums_1.Role.ADMIN,
+            role: Role.ADMIN,
             isVerified: true,
         },
     });
     console.log('Admin user seeded:', adminUser.email);
-    // 2. Create courses
     const jeeCourse = await prisma.course.create({
         data: {
             name: 'IIT-JEE Ultimate Prep',
@@ -57,14 +94,13 @@ async function main() {
         },
     });
     console.log('Courses seeded.');
-    // 3. Create teacher user and TeacherProfile
     const teacherUser = await prisma.user.upsert({
         where: { email: 'teacher@nobleclasses.com' },
         update: {},
         create: {
             email: 'teacher@nobleclasses.com',
             passwordHash: teacherPasswordHash,
-            role: enums_1.Role.TEACHER,
+            role: Role.TEACHER,
             isVerified: true,
         },
     });
@@ -80,7 +116,6 @@ async function main() {
         },
     });
     console.log('Teacher profile seeded.');
-    // 4. Create batches
     const jeeMorningBatch = await prisma.batch.create({
         data: {
             name: 'JEE 2027 Morning Batch A',
@@ -100,14 +135,13 @@ async function main() {
         },
     });
     console.log('Batches seeded.');
-    // 5. Create student user and StudentProfile (linked to JEE morning batch)
     const studentUser = await prisma.user.upsert({
         where: { email: 'student@nobleclasses.com' },
         update: {},
         create: {
             email: 'student@nobleclasses.com',
             passwordHash: studentPasswordHash,
-            role: enums_1.Role.STUDENT,
+            role: Role.STUDENT,
             isVerified: true,
         },
     });
@@ -125,46 +159,44 @@ async function main() {
             rollNumber: 'STU-001',
             admissionNo: 'ADM-2026-0001',
             batchId: jeeMorningBatch.id,
-            status: enums_1.AdmissionStatus.APPROVED,
-            paymentStatus: enums_1.PaymentStatus.PAID,
+            status: AdmissionStatus.APPROVED,
+            paymentStatus: PaymentStatus.PAID,
         },
     });
     console.log('Student profile seeded.');
-    // 6. Create some sample attendance records
     await prisma.attendance.createMany({
         data: [
             {
                 date: new Date('2026-07-10T00:00:00.000Z'),
                 studentId: studentProfile.id,
                 batchId: jeeMorningBatch.id,
-                status: enums_1.AttendanceStatus.PRESENT,
+                status: AttendanceStatus.PRESENT,
                 uploadedBy: teacherUser.id,
             },
             {
                 date: new Date('2026-07-11T00:00:00.000Z'),
                 studentId: studentProfile.id,
                 batchId: jeeMorningBatch.id,
-                status: enums_1.AttendanceStatus.PRESENT,
+                status: AttendanceStatus.PRESENT,
                 uploadedBy: teacherUser.id,
             },
             {
                 date: new Date('2026-07-12T00:00:00.000Z'),
                 studentId: studentProfile.id,
                 batchId: jeeMorningBatch.id,
-                status: enums_1.AttendanceStatus.ABSENT,
+                status: AttendanceStatus.ABSENT,
                 uploadedBy: teacherUser.id,
             },
         ],
     });
-    // 7. Create Fee Payments
     await prisma.feePayment.createMany({
         data: [
             {
                 studentId: studentProfile.id,
                 amount: 30000.00,
-                type: enums_1.FeeType.ADMISSION,
-                mode: enums_1.PaymentMode.ONLINE,
-                status: enums_1.PaymentStatus.PAID,
+                type: FeeType.ADMISSION,
+                mode: PaymentMode.ONLINE,
+                status: PaymentStatus.PAID,
                 razorpayOrderId: 'order_mock_seed123',
                 razorpayPaymentId: 'pay_mock_seed123',
                 dueDate: new Date('2026-06-01'),
@@ -174,9 +206,9 @@ async function main() {
             {
                 studentId: studentProfile.id,
                 amount: 45000.00,
-                type: enums_1.FeeType.TUITION,
-                mode: enums_1.PaymentMode.ONLINE,
-                status: enums_1.PaymentStatus.PAID,
+                type: FeeType.TUITION,
+                mode: PaymentMode.ONLINE,
+                status: PaymentStatus.PAID,
                 razorpayOrderId: 'order_mock_seed456',
                 razorpayPaymentId: 'pay_mock_seed456',
                 dueDate: new Date('2026-07-01'),
@@ -186,14 +218,13 @@ async function main() {
             {
                 studentId: studentProfile.id,
                 amount: 45000.00,
-                type: enums_1.FeeType.TUITION,
-                mode: enums_1.PaymentMode.ONLINE,
-                status: enums_1.PaymentStatus.PENDING,
+                type: FeeType.TUITION,
+                mode: PaymentMode.ONLINE,
+                status: PaymentStatus.PENDING,
                 dueDate: new Date('2026-12-01'),
             },
         ],
     });
-    // 8. Create an MCQ test exam
     const exam = await prisma.exam.create({
         data: {
             title: 'JEE Physics - Kinematics & Mechanics Mock',
@@ -206,7 +237,6 @@ async function main() {
             expiresAt: new Date('2026-08-31T23:59:59Z'),
         },
     });
-    // Create questions
     await prisma.question.createMany({
         data: [
             {
@@ -266,7 +296,6 @@ async function main() {
             },
         ],
     });
-    // Create student exam result
     await prisma.examResult.create({
         data: {
             examId: exam.id,
@@ -275,10 +304,9 @@ async function main() {
             attemptedQuestions: 5,
             correctAnswers: 4,
             wrongAnswers: 1,
-            marksObtained: 15.0, // (4 * 4) - (1 * 1) = 15
+            marksObtained: 15.0,
         },
     });
-    // 9. Gallery Items
     await prisma.galleryItem.createMany({
         data: [
             { imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600', albumName: 'Classrooms', caption: 'State-of-the-art interactive smart boards.' },
@@ -286,15 +314,13 @@ async function main() {
             { imageUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600', albumName: 'Events', caption: '2025 Academic Achievers felicitation ceremony.' },
         ],
     });
-    // 10. Testimonials
     await prisma.testimonial.createMany({
         data: [
             { studentName: 'Aditya Sen', courseName: 'IIT-JEE prep', rating: 5, text: 'The guidance here is top-notch. Dr. Ramesh Kumar explains complex physics concepts in a visual and intuitive way. Highly recommended!', batchYear: 'JEE AIR 142 (2025)' },
             { studentName: 'Priya Patel', courseName: 'NEET Prep', rating: 5, text: 'Mock test series and individual student analysis maps helped me trace my weak areas and score 680+ in NEET.', batchYear: 'NEET AIR 235 (2025)' },
         ],
     });
-    // 11. Blog Posts
-    await prisma.blogPost.create({
+    const blogPost = await prisma.blogPost.create({
         data: {
             title: 'How to Crack JEE Advanced Physics in 6 Months',
             slug: 'crack-jee-advanced-physics-6-months',
@@ -306,14 +332,13 @@ async function main() {
             authorId: adminUser.id,
         },
     });
-    // 12. Support tickets
     const ticket = await prisma.supportTicket.create({
         data: {
             studentId: studentProfile.id,
             subject: 'Issue downloading Physics syllabus PDF',
             description: 'Getting a 404 error when clicking on the download syllabus link inside the dashboard.',
-            priority: enums_1.TicketPriority.MEDIUM,
-            status: enums_1.TicketStatus.OPEN,
+            priority: TicketPriority.MEDIUM,
+            status: TicketStatus.OPEN,
         },
     });
     await prisma.supportReply.create({
@@ -323,7 +348,6 @@ async function main() {
             message: 'Hello Rahul, we are updating the servers. It will be online in 10 minutes. Please check again soon.',
         },
     });
-    // 13. Audit logs
     await prisma.auditLog.create({
         data: {
             action: 'DATABASE_SEED',
